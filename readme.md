@@ -154,14 +154,11 @@ The complete workflow can be executed as a single shell script:
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Activate the environment
 mamba activate go_enrichment
 
-# ── Step 1: Index genome and get chromosome sizes ────────────────────────────
 samtools faidx hg38.fa
 cut -f1,2 hg38.fa.fai > hg38.genome
 
-# ── Step 2: Build TSS BED from annotation ────────────────────────────────────
 zcat human_gene_annotation.tsv.gz | \
 awk 'BEGIN{OFS="\t"} NR>1{
 
@@ -181,10 +178,8 @@ awk 'BEGIN{OFS="\t"} NR>1{
 
 }' > genes_tss_clean.bed
 
-# ── Step 3: Filter to valid chromosomes ──────────────────────────────────────
 grep -Fwf <(cut -f1 hg38.genome) genes_tss_clean.bed > genes_tss_final.bed
 
-# ── Step 4: Extend to 500 bp strand-aware promoter windows ───────────────────
 bedtools slop \
     -i genes_tss_final.bed \
     -g hg38.genome \
